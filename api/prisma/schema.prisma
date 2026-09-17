@@ -11,3 +11,42 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model Signup {
+  id                   String    @id @default(uuid()) @db.Uuid
+  email                String    @unique
+  verifyToken          String?   @unique @map("verify_token")
+  verifyTokenExpiresAt DateTime? @map("verify_token_expires_at") @db.Timestamptz
+  emailVerifiedAt      DateTime? @map("email_verified_at") @db.Timestamptz
+  surveyCompletedAt    DateTime? @map("survey_completed_at") @db.Timestamptz
+  intent               String?
+  chainsUsed           String[]  @map("chains_used")
+  firstThing           String?   @map("first_thing")
+  priorityTier         Int       @default(0) @map("priority_tier")
+  status               String    @default("pending")
+  source               String?
+  utm                  Json?
+  ipHash               String?   @map("ip_hash")
+  country              String?
+  userAgent            String?   @map("user_agent")
+  createdAt            DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt            DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  events               Event[]
+
+  @@index([priorityTier, createdAt])
+  @@index([status])
+  @@index([ipHash, createdAt])
+  @@map("signups")
+}
+
+model Event {
+  id        String   @id @default(uuid()) @db.Uuid
+  signupId  String?  @map("signup_id") @db.Uuid
+  signup    Signup?  @relation(fields: [signupId], references: [id], onDelete: Cascade)
+  type      String
+  metadata  Json?
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([signupId])
+  @@map("events")
+}

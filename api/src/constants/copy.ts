@@ -8,8 +8,10 @@ export const ERRORS = {
   disposableEmail:
     'Disposable email addresses are not accepted. Please use a permanent address.',
   captchaFailed: 'Verification failed. Please refresh the page and try again.',
-  rateLimited: 'Too many signups from your network. Please try again in an hour.',
-  surveyUnauthorized: 'This survey link has expired. You are still on the list.',
+  rateLimited:
+    'Too many signups from your network. Please try again in an hour.',
+  surveyUnauthorized:
+    'This survey link has expired. You are still on the list.',
   surveyAlreadyDone: 'Survey already completed.',
   adminUnauthorized: 'Unauthorized.',
 } as const;
