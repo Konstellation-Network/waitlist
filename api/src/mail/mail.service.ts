@@ -1,7 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Resend } from 'resend';
 import { VERIFICATION_EMAIL, WELCOME_EMAIL } from '../constants/copy';
+
+const SEND_TIMEOUT_MS = 10_000;
 
 function fill(template: string, vars: Record<string, string>): string {
   return template.replace(
@@ -10,22 +11,36 @@ function fill(template: string, vars: Record<string, string>): string {
   );
 }
 
+/** "alice@example.com" -> "al…@example.com" for logs. */
+function maskEmail(email: string): string {
+  const at = email.indexOf('@');
+  if (at < 0) return '…';
+  return `${email.slice(0, 2)}…${email.slice(at)}`;
+}
+
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
-  private readonly resend: Resend;
+  private readonly endpoint: string;
+  private readonly authHeader: string;
   private readonly from: string;
   private readonly appUrl: string;
   private readonly apiUrl: string;
 
   constructor(config: ConfigService) {
-    this.resend = new Resend(config.getOrThrow<string>('RESEND_API_KEY'));
+    const apiKey = config.getOrThrow<string>('MAILGUN_API_KEY');
+    const domain = config.getOrThrow<string>('MAILGUN_DOMAIN');
+    const baseUrl = config
+      .getOrThrow<string>('MAILGUN_API_URL')
+      .replace(/\/$/, '');
+    this.endpoint = `${baseUrl}/v3/${domain}/messages`;
+    this.authHeader = `Basic ${Buffer.from(`api:${apiKey}`).toString('base64')}`;
     this.from = config.getOrThrow<string>('EMAIL_FROM');
     this.appUrl = config.getOrThrow<string>('APP_URL');
     this.apiUrl = config.getOrThrow<string>('API_URL');
   }
 
-  /** Never throws — a Resend failure must not fail the calling request. */
+  /** Never throws — a mail failure must not fail the calling request. */
   async sendVerification(to: string, token: string): Promise<void> {
     const verifyUrl = `${this.apiUrl}/waitlist/verify?token=${encodeURIComponent(token)}`;
     await this.send(
@@ -50,23 +65,35 @@ export class MailService {
   }
 
   private async send(to: string, subject: string, text: string): Promise<void> {
+    const body = new URLSearchParams({ from: this.from, to, subject, text });
     try {
-      const { data, error } = await this.resend.emails.send({
-        from: this.from,
-        to,
-        subject,
-        text,
+      const res = await fetch(this.endpoint, {
+        method: 'POST',
+        headers: {
+          authorization: this.authHeader,
+          'content-type': 'application/x-www-form-urlencoded',
+        },
+        body,
+        signal: AbortSignal.timeout(SEND_TIMEOUT_MS),
       });
-      if (error) {
+
+      if (!res.ok) {
+        const detail = (await res.text()).slice(0, 500);
         this.logger.error(
-          `Resend error sending "${subject}": ${error.name} – ${error.message}`,
+          `Mailgun ${res.status} sending "${subject}" to ${maskEmail(to)}: ${detail}`,
         );
         return;
       }
-      this.logger.log(`Sent "${subject}" (id ${data?.id ?? 'unknown'})`);
+
+      const json = (await res.json().catch(() => null)) as {
+        id?: string;
+      } | null;
+      this.logger.log(
+        `Sent "${subject}" to ${maskEmail(to)} (id ${json?.id ?? 'unknown'})`,
+      );
     } catch (err) {
       this.logger.error(
-        `Failed to send "${subject}"`,
+        `Failed to send "${subject}" to ${maskEmail(to)}`,
         err instanceof Error ? err.stack : String(err),
       );
     }
