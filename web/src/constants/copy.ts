@@ -113,7 +113,7 @@ export const ABOUT = {
   blocks: [
     {
       title: "EVM-compatible",
-      body: "Deploy Solidity contracts with the tooling you already use — Hardhat, Foundry, MetaMask. No rewrites.",
+      body: "Write smart contracts in Scriipture (Typescript) that compiles to solidity. And deployed to the Konstellation network.",
     },
     {
       title: "Cosmos SDK underneath",
