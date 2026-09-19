@@ -2,7 +2,7 @@
 
 Pre-launch waitlist for Konstellation (EVM-compatible L1 on the Cosmos SDK, chain ID 5667, token KASH).
 
-- `api/` — NestJS 11 + Drizzle ORM (Postgres) + Resend + Cloudflare Turnstile
+- `api/` — NestJS 11 + Prisma 7 (Postgres) + Mailgun + Cloudflare Turnstile
 - `web/` — Next.js 16 App Router + Tailwind v4
 
 The mechanic: sign up with an email, and the same screen immediately shows an optional 3-question survey. Completing it puts the signup in the priority pool. Skipping keeps the spot.
@@ -21,8 +21,10 @@ Access waves draw `ORDER BY priority_tier DESC, created_at ASC`.
 | `DATABASE_URL` | Postgres connection string (`postgresql://user:pass@host:5432/db`) |
 | `JWT_SECRET` | Signs the 30-minute survey tokens and keys the IP hash. 32+ random bytes, hex. |
 | `ADMIN_KEY` | Value of the `x-admin-key` header for `GET /admin/queue`. 32+ random bytes, hex. |
-| `RESEND_API_KEY` | Resend API key (`re_...`) |
-| `EMAIL_FROM` | Sender, e.g. `Konstellation <hello@yourdomain.com>` (domain must be verified in Resend; `onboarding@resend.dev` works for testing to your own address) |
+| `MAILGUN_API_KEY` | Mailgun private API key |
+| `MAILGUN_DOMAIN` | Verified Mailgun sending domain, e.g. `mg.example.com` |
+| `MAILGUN_API_URL` | `https://api.mailgun.net` (US) or `https://api.eu.mailgun.net` (EU) |
+| `EMAIL_FROM` | Sender on that domain, e.g. `Konstellation <noreply@mg.example.com>` |
 | `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile secret key |
 | `APP_URL` | Public URL of the web app, no trailing slash. Used in verify redirects. |
 | `API_URL` | Public URL of this API, no trailing slash. Used in the verification email link. |
@@ -140,7 +142,7 @@ Any Postgres (Neon, Supabase, RDS, Fly Postgres). Set `DATABASE_URL`, then from 
 3. Deploy. The home page is static and revalidates the stats count every 60 s.
 
 ### Third-party setup
-- **Resend**: verify your sending domain, set `EMAIL_FROM` to an address on it.
+- **Mailgun**: add and verify a sending domain, set `MAILGUN_DOMAIN` to it and `EMAIL_FROM` to an address on it. Pick `MAILGUN_API_URL` by the domain's region.
 - **Turnstile**: create a widget for the production hostname (and `localhost` for dev). Site key → web, secret key → API.
 
 ---
