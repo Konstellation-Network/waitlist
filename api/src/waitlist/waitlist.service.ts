@@ -10,6 +10,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { createHmac, randomBytes } from 'node:crypto';
 import { Prisma } from '../../generated/prisma/client';
+import { maskEmail } from '../common/mask-email';
 import { ERRORS } from '../constants/copy';
 import { DISPOSABLE_DOMAINS } from '../constants/disposable-domains';
 import { MailService } from '../mail/mail.service';
@@ -106,6 +107,11 @@ export class WaitlistService {
       // Not awaited: MailService swallows its own errors.
       void this.mail.sendVerification(email, verifyToken);
     }
+    this.logger.log(
+      `join ${maskEmail(email)}: verification email ${
+        count > 0 ? 'queued' : 'skipped (already verified)'
+      }`,
+    );
 
     await this.logEvent(row.id, 'signup', {
       source: utm?.utm_source ?? null,

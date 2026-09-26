@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { maskEmail } from '../common/mask-email';
 import { VERIFICATION_EMAIL, WELCOME_EMAIL } from '../constants/copy';
 
 const SEND_TIMEOUT_MS = 10_000;
@@ -9,13 +10,6 @@ function fill(template: string, vars: Record<string, string>): string {
     /\{\{(\w+)\}\}/g,
     (_, key: string) => vars[key] ?? '',
   );
-}
-
-/** "alice@example.com" -> "al…@example.com" for logs. */
-function maskEmail(email: string): string {
-  const at = email.indexOf('@');
-  if (at < 0) return '…';
-  return `${email.slice(0, 2)}…${email.slice(at)}`;
 }
 
 @Injectable()
