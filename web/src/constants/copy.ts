@@ -6,33 +6,108 @@ export const SITE = {
   name: "Konstellation",
   title: "Konstellation — Waitlist",
   description:
-    "Early access to Konstellation, an EVM-compatible Layer 1 built on the Cosmos SDK.",
+    "Konstellation is a blockchain network built for applications that need to move value quickly and cheaply, anywhere in the world. Join the waitlist.",
   chainId: "5667",
   token: "KASH",
 } as const;
 
-export const HERO = {
-  eyebrow: "Pre-launch waitlist",
-  headline: "An EVM chain with Cosmos underneath.",
-  subhead:
-    "Konstellation is an EVM-compatible Layer 1 built on the Cosmos SDK. Join the list for first access.",
+export const WORDMARK = {
+  label: "konstellation",
+} as const;
+
+export const JOIN = {
+  title: "Join Our Waitlist",
+  subtitle: "Be the first in line, be part of greatness",
 } as const;
 
 export const FORM = {
   emailLabel: "Email address",
-  emailPlaceholder: "you@example.com",
+  emailPlaceholder: "Your email address",
   submit: "Join the waitlist",
   submitting: "Joining…",
-  trustLine: "No spam. One confirmation email, then a short update every two weeks.",
+  alreadyJoined: "You're on the list — check your email to confirm your spot.",
   captchaMissing:
     "Turnstile is not configured. Set NEXT_PUBLIC_TURNSTILE_SITE_KEY in .env.local.",
-  captchaWaiting: "Complete the check above to continue.",
   errors: {
     invalidEmail: "Enter a valid email address.",
-    captcha: "The verification check failed. Please try again.",
-    network: "Couldn't reach the server. Check your connection and try again.",
-    generic: "Something went wrong. Please try again.",
+    captchaMissing: "Complete the check above before joining.",
+    captchaExpired: "Verification expired — please try again.",
   },
+} as const;
+
+export const TOASTS = {
+  network: "Can't reach the server. Check your connection and try again.",
+  rateLimited: "Too many attempts. Please wait a minute and try again.",
+  server: "Something went wrong on our end. Please try again.",
+} as const;
+
+export const WORLD_CHAIN = {
+  marker: "02",
+  heading: "The New World Chain",
+  body: "Built for a world that moves without borders. Konstellation Network brings together fast, scalable infrastructure and an open ecosystem where people, applications and assets move freely.",
+} as const;
+
+export const TIMELINE = {
+  marker: "03",
+  heading: "Where Things Stand",
+  shippedLabel: "Shipped",
+  nextLabel: "Next",
+  items: [
+    {
+      state: "shipped",
+      title: "Core network",
+      body: "Running on devnet, with contracts deploying and blocks being produced.",
+    },
+    {
+      state: "next",
+      title: "Public testnet",
+      body: "Open endpoints and a faucet. Waitlist waves get access first.",
+    },
+    {
+      state: "next",
+      title: "Mainnet",
+      body: "Following a testnet period and an external audit.",
+    },
+  ],
+} as const;
+
+export const FAQ = {
+  marker: "04",
+  heading: "Need To Know!",
+  items: [
+    {
+      q: "What is Konstellation?",
+      a: "Konstellation is a blockchain network built for applications that need to move value quickly and cheaply, anywhere in the world. KASH is its native token.",
+    },
+    {
+      q: "What do I get by joining the waitlist?",
+      a: "You'll be first to hear when access opens, and everyone who answers the three questions after signing up goes into the first access wave.",
+    },
+    {
+      q: "Is there a token?",
+      a: "TODO_TOKEN_POLICY",
+    },
+    {
+      q: "Do I need a wallet to sign up?",
+      a: "No. Joining takes an email address and nothing else. We never ask for a wallet address or any private key.",
+    },
+    {
+      q: "When does it launch?",
+      a: "The network is running on devnet now, with a public testnet next. Waitlist members hear about each milestone first.",
+    },
+    {
+      q: "How is my email used?",
+      a: "Only for waitlist updates — a short progress note roughly every two weeks. We don't sell or share it, and every email has an unsubscribe link.",
+    },
+  ],
+} as const;
+
+export const CLOSING = {
+  marker: "05",
+} as const;
+
+export const HERO = {
+  marker: "01",
 } as const;
 
 export const SURVEY = {
@@ -51,124 +126,48 @@ export const SURVEY = {
     ],
   },
   q2: {
-    label: "Which chains do you use today?",
+    label: "What Chain Do You Use Today?",
     hint: "Pick any that apply.",
-    options: [
-      "Ethereum",
-      "Base",
-      "BNB Chain",
-      "Solana",
-      "A Cosmos chain",
-      "None yet",
-    ],
+    options: ["Ethereum", "Base", "BNB Chain", "Solana", "Cosmos", "None yet"],
   },
   q3: {
-    label: "First thing you'd want to do here?",
+    label: "First Thing You'd Want To Do Here?",
     hint: "Optional",
     placeholder: "Deploy a contract, bridge from Base, run a validator…",
     maxLength: 200,
   },
-  submit: "Submit & get priority",
+  submit: "Submit & Get Priority",
   submitting: "Saving…",
-  skip: "Skip — keep my spot as is",
+  skip: "Skip – Keep My Spot As It Is",
   errors: {
-    expired: "That took a while and the session expired — you're still on the list.",
-    generic: "Couldn't save your answers. You're still on the list.",
+    generic: "Couldn't save your answers. Try again, or skip — your spot is already saved.",
   },
 } as const;
 
 export const DONE = {
-  title: "You're on the list.",
-  withSurvey: "Thanks — you're queued for the first access wave.",
-  withoutSurvey: "Your spot is saved.",
-  checkEmail:
-    "Check your inbox and click the confirmation link to lock in your spot.",
+  title: "You're On The List.",
+  sentTo: (email: string) => `Confirmation sent to ${email}.`,
+  firstWave: "You're in the first access wave.",
+  checkEmail: "Click the link in that email to lock in your spot.",
   cadence: "We'll send a short progress update every two weeks. Nothing else.",
-} as const;
-
-export const SECONDARY_FORM = {
-  title: "Get first access.",
-  subhead: "Join the list and we'll tell you when your wave opens.",
-  alreadyJoined: "You're on the list — check your email to confirm.",
+  timedOut:
+    "You're on the list. The survey timed out, but you're all set — we'll be in touch.",
+  close: "Done",
 } as const;
 
 export const VERIFY_NOTICE = {
-  expired: {
-    title: "That link has expired.",
-    body: "Confirmation links last 48 hours. Enter your email again and we'll send a fresh one.",
-  },
-  invalid: {
-    title: "That link isn't valid.",
-    body: "It may have already been used. If you haven't confirmed yet, sign up again below.",
-  },
+  expired:
+    "That confirmation link has expired. Join again below and we'll send a fresh one.",
+  invalid:
+    "That confirmation link isn't valid. Join again below and we'll send a new one.",
   dismiss: "Dismiss",
 } as const;
 
-export const STATS = {
-  label: "confirmed on the list",
-} as const;
-
-export const ABOUT = {
-  heading: "What Konstellation is",
-  blocks: [
-    {
-      title: "EVM-compatible",
-      body: "Write smart contracts in Scriipture (Typescript) that compiles to solidity. And deployed to the Konstellation network.",
-    },
-    {
-      title: "Cosmos SDK underneath",
-      body: "Fast finality, native IBC interoperability, and a sovereign validator set instead of a rollup sequencer.",
-    },
-    {
-      title: "One network, one token",
-      body: `KASH is the native gas and staking asset. Chain ID ${SITE.chainId}.`,
-    },
-  ],
-} as const;
-
-export const TIMELINE = {
-  heading: "Where things stand",
-  shippedLabel: "Shipped",
-  nextLabel: "Next",
-  items: [
-    { state: "shipped", title: "Core chain", body: "Cosmos SDK base with the EVM module and JSON-RPC." },
-    { state: "shipped", title: "Internal devnet", body: "Running continuously; contracts deploy with unmodified Ethereum tooling." },
-    { state: "next", title: "Public testnet", body: "Faucet, explorer, and public RPC. Waitlist waves get access first." },
-    { state: "next", title: "Validator onboarding", body: "Docs and genesis coordination for node operators." },
-    { state: "next", title: "Mainnet", body: "Following a testnet period and external audit." },
-  ],
-} as const;
-
-export const FAQ = {
-  heading: "Questions",
-  items: [
-    {
-      q: "What do I get by joining the waitlist?",
-      a: "First access when the network opens, and a short progress update every two weeks. Completing the three-question survey after signup puts you in the first access wave.",
-    },
-    {
-      q: "Is there a token?",
-      a: "TODO_TOKEN_POLICY",
-    },
-    {
-      q: "Do I need a wallet to sign up?",
-      a: "No. Only an email address. We will never ask for a wallet address as part of the waitlist.",
-    },
-    {
-      q: "Does it work with my existing Ethereum tools?",
-      a: `Yes. Konstellation exposes standard Ethereum JSON-RPC, so Hardhat, Foundry, ethers, viem and browser wallets work as-is. Use chain ID ${SITE.chainId}.`,
-    },
-    {
-      q: "How is my email used?",
-      a: "Only for the confirmation email, the bi-weekly update, and your access invite. You can unsubscribe from any email.",
-    },
-  ],
-} as const;
-
 export const WELCOME = {
-  title: "You're confirmed.",
-  body: "Your email is verified and your spot on the Konstellation waitlist is locked in.",
-  next: "Next: a short progress update every two weeks, and an access email when your wave opens.",
+  marker: "01",
+  title: "You're Confirmed.",
+  body: "Your spot on the Konstellation waitlist is locked in.",
+  next: "We'll be in touch when your access wave opens. Until then, expect a short progress update every two weeks.",
 } as const;
 
 export const FOOTER = {

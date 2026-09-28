@@ -2,55 +2,52 @@
 
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
 
-export type Stage = "form" | "survey" | "done";
-export type FormSlot = "hero" | "footer";
+/** How the survey step ended; decides which Done copy is shown. */
+export type DoneReason = "completed" | "skipped" | "timedOut";
 
 interface Joined {
   email: string;
+  /** Short-lived JWT for POST /waitlist/survey. Held in memory only — never stored. */
   surveyToken: string;
-  surveyCompleted: boolean;
-  /** Which form instance the user submitted from; only that one shows the survey/done card. */
-  slot: FormSlot;
 }
 
+type Overlay = { step: "survey" } | { step: "done"; reason: DoneReason } | null;
+
 interface WaitlistState {
-  stage: Stage;
   joined: Joined | null;
-  surveyDone: boolean;
+  overlay: Overlay;
   onJoined: (j: Joined) => void;
-  onSurveyFinished: (completed: boolean) => void;
+  finishSurvey: (reason: DoneReason) => void;
+  closeOverlay: () => void;
 }
 
 const Ctx = createContext<WaitlistState | null>(null);
 
 /**
- * Holds the form -> survey -> done state for the whole page so the hero form and the
- * repeated bottom form stay in sync. Nothing here touches the URL or storage: the
- * survey token lives in memory only.
+ * Page-wide signup state so the hero form and the closing form stay in sync, and so the
+ * survey overlay can be opened from either. Nothing here touches the URL or storage.
  */
 export function WaitlistProvider({ children }: { children: React.ReactNode }) {
-  const [stage, setStage] = useState<Stage>("form");
   const [joined, setJoined] = useState<Joined | null>(null);
-  const [surveyDone, setSurveyDone] = useState(false);
+  const [overlay, setOverlay] = useState<Overlay>(null);
 
   const onJoined = useCallback((j: Joined) => {
     setJoined(j);
-    if (j.surveyCompleted) {
-      setSurveyDone(true);
-      setStage("done");
-    } else {
-      setStage("survey");
-    }
+    setOverlay({ step: "survey" });
   }, []);
 
-  const onSurveyFinished = useCallback((completed: boolean) => {
-    setSurveyDone(completed);
-    setStage("done");
+  const finishSurvey = useCallback((reason: DoneReason) => {
+    setOverlay({ step: "done", reason });
+  }, []);
+
+  // Only the Done step may close the overlay; the survey step always resolves to Done first.
+  const closeOverlay = useCallback(() => {
+    setOverlay((o) => (o?.step === "done" ? null : o));
   }, []);
 
   const value = useMemo(
-    () => ({ stage, joined, surveyDone, onJoined, onSurveyFinished }),
-    [stage, joined, surveyDone, onJoined, onSurveyFinished],
+    () => ({ joined, overlay, onJoined, finishSurvey, closeOverlay }),
+    [joined, overlay, onJoined, finishSurvey, closeOverlay],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

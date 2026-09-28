@@ -1,11 +1,10 @@
-import { FORM, SURVEY } from "@/constants/copy";
-
 const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/$/, "");
 
 export type Utm = Record<string, string>;
 
 export interface JoinResponse {
   ok: true;
+  /** Always false by design (anti-enumeration). Never branch on it. */
   surveyCompleted: boolean;
   surveyToken: string;
 }
@@ -16,12 +15,14 @@ export interface SurveyPayload {
   firstThing?: string;
 }
 
+/** status 0 = the request never got a response (offline, DNS, CORS, server down). */
 export class ApiError extends Error {
   constructor(
     public readonly status: number,
-    message: string,
+    /** The API's own message, when it sent one. */
+    public readonly serverMessage: string | null,
   ) {
-    super(message);
+    super(serverMessage ?? `HTTP ${status}`);
   }
 }
 
@@ -30,24 +31,28 @@ interface NestErrorBody {
 }
 
 async function request<T>(path: string, init: RequestInit): Promise<T> {
+  const url = `${API_URL}${path}`;
   let res: Response;
   try {
-    res = await fetch(`${API_URL}${path}`, {
+    res = await fetch(url, {
       ...init,
       headers: { "content-type": "application/json", ...(init.headers ?? {}) },
     });
-  } catch {
-    throw new ApiError(0, FORM.errors.network);
+  } catch (err) {
+    // Browsers report CORS rejections, DNS failures and a stopped server identically
+    // ("TypeError: Failed to fetch"); the Network tab shows which one it was.
+    console.error(`[api] ${init.method ?? "GET"} ${url} failed before a response:`, err);
+    throw new ApiError(0, null);
   }
 
   if (!res.ok) {
-    let message: string = FORM.errors.generic;
+    let message: string | null = null;
     try {
       const body = (await res.json()) as NestErrorBody;
       if (typeof body.message === "string") message = body.message;
       else if (Array.isArray(body.message) && body.message[0]) message = body.message[0];
     } catch {
-      // non-JSON error body — keep the generic message
+      // non-JSON error body
     }
     throw new ApiError(res.status, message);
   }
@@ -66,20 +71,5 @@ export function submitSurvey(surveyToken: string, payload: SurveyPayload) {
     method: "POST",
     headers: { authorization: `Bearer ${surveyToken}` },
     body: JSON.stringify(payload),
-  }).catch((err: unknown) => {
-    if (err instanceof ApiError && err.status === 401) {
-      throw new ApiError(401, SURVEY.errors.expired);
-    }
-    throw err;
   });
-}
-
-export async function fetchStats(): Promise<{ verified: number } | null> {
-  try {
-    const res = await fetch(`${API_URL}/waitlist/stats`, { next: { revalidate: 60 } });
-    if (!res.ok) return null;
-    return (await res.json()) as { verified: number };
-  } catch {
-    return null;
-  }
 }

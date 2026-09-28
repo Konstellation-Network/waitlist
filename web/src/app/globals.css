@@ -1,12 +1,29 @@
 @import "tailwindcss";
 
+/* Values pulled from Figma (file Ow540Y72kaytNmSiYSxSHk). Monochrome only; error is the one accent. */
 @theme {
-  --color-bg: #0a0b0d;
+  --color-bg: #000000;
+  --color-bg-end: #1b1b1b;
+  --color-panel: #151515;
+  --color-panel-2: #212121;
+  --color-panel-3: #383838;
+  --color-line: #2a2a2a;
+  --color-fg: #ffffff;
+  --color-fg-soft: #d5d5d5;
+  --color-grey-bright: #bebebe;
+  --color-grey-light: #a6a6a6;
+  --color-grey: #909090;
+  --color-grey-mid: #6f6e6e;
+  --color-grey-dim: #6a6a6a;
+  --color-marker: #646464;
+  --color-ink: #141b34;
+  --color-error: #e8a0a0;
+
+  /* Legacy tokens still used by the survey/done/timeline components until they are rebuilt. */
   --color-surface: #0f1114;
   --color-surface-2: #14171b;
   --color-border: #23272e;
   --color-border-strong: #343a43;
-  --color-fg: #e9eaec;
   --color-muted: #8b909a;
   --color-faint: #5c616b;
   --color-accent: #aebcff;
@@ -14,38 +31,55 @@
   --color-success: #8fd4a8;
   --color-danger: #f0a1a1;
 
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
 }
 
 html {
   color-scheme: dark;
+  /* Own background so the body gradient paints on the body box instead of tiling the canvas. */
+  background: var(--color-bg);
 }
 
 body {
-  background: var(--color-bg);
+  background: linear-gradient(145.6deg, var(--color-bg) 10.78%, var(--color-bg-end) 113.46%);
   color: var(--color-fg);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-x: clip;
 }
 
-/* Subtle dot grid behind the hero — texture, not decoration. */
-.hero-grid {
-  background-image: radial-gradient(var(--color-border) 1px, transparent 1px);
-  background-size: 24px 24px;
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.6), transparent 85%);
+/* Figma sets every text layer to cap-height/alphabetic trim; spacing below is measured against it. */
+@utility trim-cap {
+  text-box: trim-both cap alphabetic;
 }
 
-/* Native <details> accordion: rotate the marker, hide the default one. */
+/* Heading gradients from the file (white -> #bebebe, and the dimmer #6b6b6b variant). */
+@utility text-grad {
+  background-image: linear-gradient(93deg, #ffffff 0.23%, var(--color-grey-bright) 102.25%);
+  background-clip: text;
+  color: transparent;
+  /* Extend the painted box past the cap-trimmed baseline so descenders keep the gradient. */
+  padding-bottom: 0.25em;
+  margin-bottom: -0.25em;
+}
+@utility text-grad-dim {
+  background-image: linear-gradient(93.2deg, #6b6b6b 0.23%, var(--color-grey-bright) 102.25%);
+  background-clip: text;
+  color: transparent;
+  /* Extend the painted box past the cap-trimmed baseline so descenders keep the gradient. */
+  padding-bottom: 0.25em;
+  margin-bottom: -0.25em;
+}
+
+/* Native <details> accordion: hide the default marker. */
 details > summary {
   list-style: none;
 }
 details > summary::-webkit-details-marker {
   display: none;
-}
-details[open] .faq-chevron {
-  transform: rotate(180deg);
 }
 
 @keyframes card-in {

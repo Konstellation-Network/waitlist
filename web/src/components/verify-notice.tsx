@@ -14,34 +14,32 @@ function readKind(): Kind | null {
 }
 
 /**
- * Shows an inline notice when the API redirects back with ?verify=expired|invalid.
- * Reads window.location via useSyncExternalStore (server snapshot: null) so the
- * page stays statically prerendered and hydrates without a mismatch.
+ * Dismissible banner for the API's redirect back with ?verify=expired|invalid.
+ * Reads window.location via useSyncExternalStore (server snapshot: null) so the page
+ * stays statically prerendered and hydrates without a mismatch.
  */
 export function VerifyNotice() {
   const kind = useSyncExternalStore(noopSubscribe, readKind, () => null);
   const [dismissed, setDismissed] = useState(false);
 
   if (!kind || dismissed) return null;
-  const copy = VERIFY_NOTICE[kind];
 
   return (
-    <div
-      role="alert"
-      className="card-in mb-6 flex items-start gap-3 rounded-md border border-danger/30 bg-danger/5 px-4 py-3"
-    >
-      <div className="flex-1">
-        <p className="text-sm font-medium text-fg">{copy.title}</p>
-        <p className="mt-0.5 text-sm text-muted">{copy.body}</p>
+    <div role="alert" className="card-in border-b border-panel-2 bg-panel">
+      <div className="flex items-start gap-[12px] px-[31px] py-[12px] lg:items-center lg:px-[60px] lg:py-[14px]">
+        <span aria-hidden className="mt-[5px] size-[6px] shrink-0 rounded-full bg-error lg:mt-0" />
+        <p className="flex-1 text-[12px] leading-[1.45] tracking-[-0.02em] text-fg-soft lg:text-[14px]">
+          {VERIFY_NOTICE[kind]}
+        </p>
+        <button
+          type="button"
+          onClick={() => setDismissed(true)}
+          aria-label={VERIFY_NOTICE.dismiss}
+          className="-m-[6px] rounded-[6px] p-[6px] text-grey transition outline-none hover:text-fg focus-visible:ring-1 focus-visible:ring-grey-light"
+        >
+          <X size={16} aria-hidden />
+        </button>
       </div>
-      <button
-        type="button"
-        onClick={() => setDismissed(true)}
-        aria-label={VERIFY_NOTICE.dismiss}
-        className="-m-1 rounded p-1 text-muted transition hover:text-fg"
-      >
-        <X size={16} aria-hidden />
-      </button>
     </div>
   );
 }
